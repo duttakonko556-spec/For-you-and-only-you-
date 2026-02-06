@@ -5,72 +5,85 @@
 
 body {
   margin: 0;
-  width: 100vw;
-  height: 100vh;
+  min-height: 100vh;
   background: #ffd6e8;
   display: flex;
   justify-content: center;
   align-items: center;
   overflow: hidden;
-  transition: background 2s ease;
+  padding: 16px;
 }
 
 .container {
-  position: relative;
   text-align: center;
-  z-index: 2;
+  width: 100%;
+  max-width: 500px;
 }
 
 h1 {
-  font-size: 3rem;
+  font-size: clamp(1.8rem, 6vw, 3rem);
   color: #ff4f8b;
-  margin-bottom: 40px;
+  margin-bottom: 32px;
+}
+
+/* BUTTONS */
+.btn-wrap {
+  position: relative;
+  height: 170px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.spacer {
+  height: 20px;
 }
 
 button {
-  width: 160px;
-  padding: 15px 0;
-  font-size: 1.4rem;
+  width: min(160px, 70vw);
+  padding: 14px 0;
+  font-size: clamp(1.1rem, 4vw, 1.4rem);
   border: none;
   border-radius: 30px;
   cursor: pointer;
-  position: relative;
 }
 
 #yesBtn {
   background: #ff4f8b;
   color: white;
+  z-index: 2;
 }
 
 #noBtn {
   background: white;
   color: #ff4f8b;
   position: absolute;
-  transition: all 0.2s ease;
-  touch-action: none;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  touch-action: manipulation;
 }
 
+/* CANVAS */
 canvas {
   position: fixed;
-  top: 0;
-  left: 0;
+  inset: 0;
   display: none;
 }
 
-/* FINAL SCENE */
+/* FINAL */
 #finalScene {
   position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  text-align: center;
-  z-index: 10;
+  inset: 0;
+  background: black;
   display: none;
-  pointer-events: none;
+  z-index: 10;
+  text-align: center;
+  padding: 20px;
 }
 
 #finalText {
-  font-size: 3.5rem;
+  font-size: clamp(2rem, 6vw, 3.5rem);
   color: white;
   margin-bottom: 20px;
   opacity: 0;
@@ -78,17 +91,14 @@ canvas {
 }
 
 #photo {
-  width: 260px;
-  max-height: 45vh;
+  width: min(260px, 80vw);
+  max-height: 50vh;
   object-fit: cover;
   border-radius: 20px;
   opacity: 0;
-  box-shadow: 0 0 30px rgba(255, 100, 160, 0.8);
   transition: opacity 1.5s ease;
 }
 
 @keyframes fadeIn {
-  to {
-    opacity: 1;
-  }
+  to { opacity: 1; }
 }
