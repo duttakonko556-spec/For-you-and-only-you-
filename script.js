@@ -144,10 +144,10 @@ function animate() {
 
 /* ---------- PHOTOS ---------- */
 const photos = [
-  "photo1.jpg",
-  "photo2.jpg",
-  "photo3.jpg",
-  "photo4.jpg",
+  "photo1.jpeg",
+  "photo2.jpeg",
+  "photo3.jpeg",
+  "photo4.jpeg",
 ];
 
 function showFinalScene() {
@@ -167,3 +167,4 @@ function showFinalScene() {
     setTimeout(next, 2400);
   }, 1200);
 }
+
