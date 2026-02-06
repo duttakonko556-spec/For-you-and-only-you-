@@ -9,87 +9,103 @@ const photoEl = document.getElementById("photo");
 let noClicks = 0;
 let fireworksStarted = false;
 
-/* NO BUTTON CHAOS */
+/* ---------- CANVAS ---------- */
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener("resize", resizeCanvas);
+
+/* ---------- NO BUTTON ---------- */
 function moveNoButton() {
   if (noClicks >= 8) return;
-
   noClicks++;
 
-  const sadEmojis = ["😟", "😢", "🥺", "😭", "💔"];
-  noBtn.innerText = "No " + sadEmojis[Math.min(noClicks - 1, sadEmojis.length - 1)];
-
-  noBtn.style.transition = `all ${Math.max(0.05, 0.3 - noClicks * 0.03)}s`;
+  const emojis = ["😟", "😢", "🥺", "😭", "💔"];
+  noBtn.innerText =
+    "No " + emojis[Math.min(noClicks - 1, emojis.length - 1)];
 
   const padding = 20;
-  const maxX = window.innerWidth - noBtn.offsetWidth - padding;
-  const maxY = window.innerHeight - noBtn.offsetHeight - padding;
 
-  noBtn.style.left = Math.random() * maxX + "px";
-  noBtn.style.top = Math.random() * maxY + "px";
+  const maxX =
+    window.innerWidth - noBtn.offsetWidth - padding;
+  const maxY =
+    window.innerHeight - noBtn.offsetHeight - padding;
 
-  if (noClicks >= 8) {
+  const safeX = Math.max(
+    padding,
+    Math.min(Math.random() * maxX, maxX)
+  );
+  const safeY = Math.max(
+    padding,
+    Math.min(Math.random() * maxY, maxY)
+  );
+
+  noBtn.style.left = safeX + "px";
+  noBtn.style.top = safeY + "px";
+  noBtn.style.transform = "none";
+
+  if (noClicks === 8) {
     noBtn.innerText = "Yes 😏";
     noBtn.style.background = "#ff4f8b";
     noBtn.style.color = "white";
-    noBtn.onclick = yesClicked;
+    noBtn.addEventListener("click", yesClicked, { once: true });
   }
 }
 
-function fakeNo(e) {
-  e.preventDefault();
-}
-
-/* EVENTS */
-noBtn.addEventListener("mouseover", moveNoButton);
-noBtn.addEventListener("mouseenter", moveNoButton);
-noBtn.addEventListener("touchstart", (e) => {
+/* Use pointer events (mobile + desktop safe) */
+noBtn.addEventListener("pointerdown", (e) => {
   e.preventDefault();
   moveNoButton();
 });
-noBtn.addEventListener("click", fakeNo);
 
 yesBtn.addEventListener("click", yesClicked);
 
-/* YES CLICK */
+/* ---------- YES CLICK ---------- */
 function yesClicked() {
   document.body.style.background = "black";
   content.style.display = "none";
   canvas.style.display = "block";
+
+  resizeCanvas();
   startFireworks();
   showFinalScene();
 }
 
-/* FIREWORKS */
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-
+/* ---------- FIREWORKS ---------- */
 let particles = [];
 
 function startFireworks() {
   if (fireworksStarted) return;
   fireworksStarted = true;
 
-  setInterval(() => {
-    for (let i = 0; i < 60; i++) {
+  function spawn() {
+    for (let i = 0; i < 70; i++) {
       particles.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
-        vx: (Math.random() - 0.5) * 6,
-        vy: (Math.random() - 0.5) * 6,
-        life: 100,
-        color: `hsl(${Math.random() * 360},100%,60%)`
+        vx: (Math.random() - 0.5) * 7,
+        vy: (Math.random() - 0.5) * 7,
+        life: 120,
+        color: `hsl(${Math.random() * 360}, 100%, 60%)`,
       });
     }
-  }, 600);
+  }
 
-  animate();
+  spawn();
+  setInterval(spawn, 700);
+
+  requestAnimationFrame(animate);
 }
 
 function animate() {
-  ctx.fillStyle = "rgba(0,0,0,0.2)";
+  ctx.fillStyle = "rgba(0,0,0,0.25)";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  particles.forEach((p, i) => {
+  particles = particles.filter((p) => p.life > 0);
+
+  particles.forEach((p) => {
     p.x += p.vx;
     p.y += p.vy;
     p.life--;
@@ -98,28 +114,24 @@ function animate() {
     ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
     ctx.fillStyle = p.color;
     ctx.fill();
-
-    if (p.life <= 0) particles.splice(i, 1);
   });
 
   requestAnimationFrame(animate);
 }
 
-/* PHOTO SEQUENCE */
+/* ---------- PHOTOS ---------- */
 const photos = [
-  "./photo1.jpg",
-  "./photo2.jpg",
-  "./photo3.jpg",
-  "./photo4.jpg"
+  "photo1.jpeg",
+  "photo2.jpeg",
+  "photo3.jpeg",
+  "photo4.jpeg",
 ];
 
 function showFinalScene() {
   finalScene.style.display = "block";
   let index = 0;
 
-  setTimeout(showNext, 1500);
-
-  function showNext() {
+  setTimeout(function next() {
     if (index >= photos.length) return;
 
     photoEl.style.opacity = "0";
@@ -128,8 +140,8 @@ function showFinalScene() {
       photoEl.src = photos[index];
       photoEl.style.opacity = "1";
       index++;
-    }, 800);
+    }, 600);
 
-    setTimeout(showNext, 2600);
-  }
+    setTimeout(next, 2400);
+  }, 1200);
 }
