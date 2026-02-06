@@ -15,9 +15,10 @@ body {
 }
 
 .container {
-  text-align: center;
+ text-align: center;
   width: 100%;
   max-width: 500px;
+  position: relative;
 }
 
 h1 {
@@ -55,13 +56,10 @@ button {
 }
 
 #noBtn {
-  background: white;
-  color: #ff4f8b;
-  position: absolute;
-  top: 80px;
+   position: absolute;
   left: 50%;
-  transform: translateX(-50%);
-  touch-action: manipulation;
+  top: 50%;
+  transform: translate(-50%, -50%);
 }
 
 /* CANVAS */
@@ -104,4 +102,5 @@ canvas {
 @keyframes fadeIn {
   to { opacity: 1; }
 }
+
 
