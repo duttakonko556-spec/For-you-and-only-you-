@@ -64,10 +64,10 @@ button {
 
 /* CANVAS */
 canvas {
-  position: fixed;
+   position: fixed;
   inset: 0;
-  display: none;
-  z-index: 5; /* 🔥 IMPORTANT */
+  display: block;        /* 🔥 NEVER HIDE IT */
+  z-index: 9999;         /* 🔥 ABOVE EVERYTHING */
   pointer-events: none;
 }
 
@@ -102,5 +102,6 @@ canvas {
 @keyframes fadeIn {
   to { opacity: 1; }
 }
+
 
 
