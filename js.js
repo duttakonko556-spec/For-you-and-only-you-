@@ -9,44 +9,43 @@ const photoEl = document.getElementById("photo");
 let noClicks = 0;
 let fireworksStarted = false;
 
-/* NO BUTTON CHAOS */
+/* CANVAS RESIZE */
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener("resize", resizeCanvas);
+
+/* NO BUTTON — GITHUB PAGES SAFE */
 function moveNoButton() {
   if (noClicks >= 8) return;
-
   noClicks++;
 
-  const sadEmojis = ["😟", "😢", "🥺", "😭", "💔"];
-  noBtn.innerText = "No " + sadEmojis[Math.min(noClicks - 1, sadEmojis.length - 1)];
-
-  noBtn.style.transition = `all ${Math.max(0.05, 0.3 - noClicks * 0.03)}s`;
+  const emojis = ["😟", "😢", "🥺", "😭", "💔"];
+  noBtn.innerText = "No " + emojis[Math.min(noClicks - 1, emojis.length - 1)];
 
   const padding = 20;
   const maxX = window.innerWidth - noBtn.offsetWidth - padding;
   const maxY = window.innerHeight - noBtn.offsetHeight - padding;
 
-  noBtn.style.left = Math.random() * maxX + "px";
-  noBtn.style.top = Math.random() * maxY + "px";
+  noBtn.style.left = Math.max(10, Math.random() * maxX) + "px";
+  noBtn.style.top = Math.max(10, Math.random() * maxY) + "px";
+  noBtn.style.transform = "none";
 
-  if (noClicks >= 8) {
+  if (noClicks === 8) {
     noBtn.innerText = "Yes 😏";
     noBtn.style.background = "#ff4f8b";
     noBtn.style.color = "white";
-    noBtn.onclick = yesClicked;
+    noBtn.addEventListener("click", yesClicked, { once: true });
   }
 }
 
-function fakeNo(e) {
-  e.preventDefault();
-}
-
-/* EVENTS */
-noBtn.addEventListener("mouseover", moveNoButton);
-noBtn.addEventListener("mouseenter", moveNoButton);
-noBtn.addEventListener("touchstart", (e) => {
+/* USE POINTER EVENTS — NOT mouseover */
+noBtn.addEventListener("pointerdown", (e) => {
   e.preventDefault();
   moveNoButton();
 });
-noBtn.addEventListener("click", fakeNo);
 
 yesBtn.addEventListener("click", yesClicked);
 
@@ -60,9 +59,6 @@ function yesClicked() {
 }
 
 /* FIREWORKS */
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-
 let particles = [];
 
 function startFireworks() {
@@ -105,7 +101,7 @@ function animate() {
   requestAnimationFrame(animate);
 }
 
-/* PHOTO SEQUENCE */
+/* PHOTOS */
 const photos = [
   "./photo1.jpg",
   "./photo2.jpg",
@@ -115,21 +111,18 @@ const photos = [
 
 function showFinalScene() {
   finalScene.style.display = "block";
-  let index = 0;
+  let i = 0;
 
-  setTimeout(showNext, 1500);
-
-  function showNext() {
-    if (index >= photos.length) return;
+  setTimeout(function next() {
+    if (i >= photos.length) return;
 
     photoEl.style.opacity = "0";
-
     setTimeout(() => {
-      photoEl.src = photos[index];
+      photoEl.src = photos[i];
       photoEl.style.opacity = "1";
-      index++;
-    }, 800);
+      i++;
+    }, 600);
 
-    setTimeout(showNext, 2600);
-  }
+    setTimeout(next, 2400);
+  }, 1200);
 }
