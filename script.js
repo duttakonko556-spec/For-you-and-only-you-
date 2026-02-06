@@ -6,6 +6,10 @@ const ctx = canvas.getContext("2d");
 const finalScene = document.getElementById("finalScene");
 const photoEl = document.getElementById("photo");
 
+/* AUDIO */
+const fireworkSound = new Audio("fireworks.mp3");
+fireworkSound.volume = 0.6;
+
 let noClicks = 0;
 let fireworksStarted = false;
 
@@ -17,7 +21,7 @@ function resizeCanvas() {
 resizeCanvas();
 window.addEventListener("resize", resizeCanvas);
 
-/* ---------- NO BUTTON ---------- */
+/* ---------- NO BUTTON (SLOW + NEARBY) ---------- */
 function moveNoButton() {
   if (noClicks >= 8) return;
   noClicks++;
@@ -28,22 +32,28 @@ function moveNoButton() {
 
   const padding = 20;
 
-  const maxX =
-    window.innerWidth - noBtn.offsetWidth - padding;
-  const maxY =
-    window.innerHeight - noBtn.offsetHeight - padding;
+  const currentX = noBtn.offsetLeft;
+  const currentY = noBtn.offsetTop;
 
-  const safeX = Math.max(
-    padding,
-    Math.min(Math.random() * maxX, maxX)
+  // small movement radius (nearby)
+  const deltaX = (Math.random() - 0.5) * 120;
+  const deltaY = (Math.random() - 0.5) * 120;
+
+  const maxX = window.innerWidth - noBtn.offsetWidth - padding;
+  const maxY = window.innerHeight - noBtn.offsetHeight - padding;
+
+  const nextX = Math.min(
+    maxX,
+    Math.max(padding, currentX + deltaX)
   );
-  const safeY = Math.max(
-    padding,
-    Math.min(Math.random() * maxY, maxY)
+  const nextY = Math.min(
+    maxY,
+    Math.max(padding, currentY + deltaY)
   );
 
-  noBtn.style.left = safeX + "px";
-  noBtn.style.top = safeY + "px";
+  noBtn.style.transition = "left 0.6s ease, top 0.6s ease";
+  noBtn.style.left = nextX + "px";
+  noBtn.style.top = nextY + "px";
   noBtn.style.transform = "none";
 
   if (noClicks === 8) {
@@ -54,7 +64,7 @@ function moveNoButton() {
   }
 }
 
-/* Use pointer events (mobile + desktop safe) */
+/* Pointer-safe */
 noBtn.addEventListener("pointerdown", (e) => {
   e.preventDefault();
   moveNoButton();
@@ -68,6 +78,9 @@ function yesClicked() {
   content.style.display = "none";
   canvas.style.display = "block";
 
+  fireworkSound.currentTime = 0;
+  fireworkSound.play().catch(() => {});
+
   resizeCanvas();
   startFireworks();
   showFinalScene();
@@ -80,27 +93,33 @@ function startFireworks() {
   if (fireworksStarted) return;
   fireworksStarted = true;
 
-  function spawn() {
-    for (let i = 0; i < 70; i++) {
+  function spawnFirework() {
+    const cx = Math.random() * canvas.width;
+    const cy = Math.random() * canvas.height * 0.6;
+
+    for (let i = 0; i < 90; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = Math.random() * 6 + 2;
+
       particles.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        vx: (Math.random() - 0.5) * 7,
-        vy: (Math.random() - 0.5) * 7,
+        x: cx,
+        y: cy,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
         life: 120,
-        color: `hsl(${Math.random() * 360}, 100%, 60%)`,
+        color: `hsl(${Math.random() * 360},100%,60%)`,
       });
     }
   }
 
-  spawn();
-  setInterval(spawn, 700);
+  spawnFirework();
+  setInterval(spawnFirework, 900);
 
   requestAnimationFrame(animate);
 }
 
 function animate() {
-  ctx.fillStyle = "rgba(0,0,0,0.25)";
+  ctx.fillStyle = "rgba(0,0,0,0.3)";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   particles = particles.filter((p) => p.life > 0);
@@ -108,6 +127,7 @@ function animate() {
   particles.forEach((p) => {
     p.x += p.vx;
     p.y += p.vy;
+    p.vy += 0.04; // gravity
     p.life--;
 
     ctx.beginPath();
@@ -121,10 +141,10 @@ function animate() {
 
 /* ---------- PHOTOS ---------- */
 const photos = [
-  "photo1.jpeg",
-  "photo2.jpeg",
-  "photo3.jpeg",
-  "photo4.jpeg",
+  "photo1.jpg",
+  "photo2.jpg",
+  "photo3.jpg",
+  "photo4.jpg",
 ];
 
 function showFinalScene() {
