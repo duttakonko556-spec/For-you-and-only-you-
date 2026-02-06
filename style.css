@@ -64,10 +64,9 @@ button {
 
 /* CANVAS */
 canvas {
-   position: fixed;
+  position: fixed;
   inset: 0;
-  display: block;        /* 🔥 NEVER HIDE IT */
-  z-index: 9999;         /* 🔥 ABOVE EVERYTHING */
+  z-index: 10000; /* BELOW final text/images */
   pointer-events: none;
 }
 
@@ -75,12 +74,13 @@ canvas {
 #finalScene {
   position: fixed;
   inset: 0;
-  background: black;
   display: none;
-  z-index: 10;
+  z-index: 10001; /* ABOVE fireworks */
   text-align: center;
-  padding: 20px;
+  pointer-events: none;
+  padding-top: 80px;
 }
+
 
 #finalText {
   font-size: clamp(2rem, 6vw, 3.5rem);
@@ -102,6 +102,7 @@ canvas {
 @keyframes fadeIn {
   to { opacity: 1; }
 }
+
 
 
 
