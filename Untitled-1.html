@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Be My Valentine 💖</title>
+
+<style>
+* {
+box-sizing: border-box;
+font-family: "Poppins", cursive;
+}
+
+body {
+margin: 0;
+width: 100vw;
+height: 100vh;
+background: #ffd6e8;
+display: flex;
+justify-content: center;
+align-items: center;
+overflow: hidden;
+transition: background 2s ease;
+}
+
+.container {
+position: relative;
+text-align: center;
+z-index: 2;
+}
+
+h1 {
+font-size: 3rem;
+color: #ff4f8b;
+margin-bottom: 40px;
+}
+
+button {
+width: 160px;
+padding: 15px 0;
+font-size: 1.4rem;
+border: none;
+border-radius: 30px;
+cursor: pointer;
+text-align: center;
+position: relative;
+}
+
+#yesBtn {
+background: #ff4f8b;
+color: white;
+}
+
+#noBtn {
+background: white;
+color: #ff4f8b;
+position: absolute;
+transition: all 0.2s ease;
+touch-action: none;
+}
+
+canvas {
+position: fixed;
+top: 0;
+left: 0;
+display: none;
+}
+
+/* FINAL SCENE */
+#finalScene {
+position: fixed;
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%);
+text-align: center;
+z-index: 10;
+display: none;
+pointer-events: none;
+}
+
+#finalText {
+font-size: 3.5rem;
+color: white;
+margin-bottom: 20px;
+opacity: 0;
+animation: fadeIn 2s forwards;
+}
+
+#photo {
+width: 260px;
+max-height: 45vh;
+object-fit: cover;
+border-radius: 20px;
+opacity: 0;
+box-shadow: 0 0 30px rgba(255, 100, 160, 0.8);
+transition: opacity 1.5s ease;
+}
+
+@keyframes fadeIn {
+to { opacity: 1; }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container" id="content">
+<h1>Will you be my Valentine? 💕</h1>
+<button id="yesBtn">Yes 💖</button>
+<button id="noBtn">No 😟</button>
+</div>
+
+<div id="finalScene">
+<div id="finalText">YAAAYYY!!! I love you ❤️</div>
+<img id="photo" src="">
+</div>
+
+<canvas id="fireworks"></canvas>
+
+<script>
+const noBtn = document.getElementById("noBtn");
+const yesBtn = document.getElementById("yesBtn");
+const content = document.getElementById("content");
+const canvas = document.getElementById("fireworks");
+const ctx = canvas.getContext("2d");
+const finalScene = document.getElementById("finalScene");
+const photoEl = document.getElementById("photo");
+
+let noClicks = 0;
+let fireworksStarted = false;
+
+/* NO BUTTON CHAOS */
+function moveNoButton() {
+if (noClicks >= 8) return;
+
+noClicks++;
+
+const sadEmojis = ["😟", "😢", "🥺", "😭", "💔"];
+noBtn.innerText = "No " + sadEmojis[Math.min(noClicks - 1, sadEmojis.length - 1)];
+
+noBtn.style.transition = `all ${Math.max(0.05, 0.3 - noClicks * 0.03)}s`;
+
+const padding = 20;
+const maxX = window.innerWidth - noBtn.offsetWidth - padding;
+const maxY = window.innerHeight - noBtn.offsetHeight - padding;
+
+noBtn.style.left = Math.random() * maxX + "px";
+noBtn.style.top = Math.random() * maxY + "px";
+
+if (noClicks >= 8) {
+noBtn.innerText = "Yes 😏";
+noBtn.style.background = "#ff4f8b";
+noBtn.style.color = "white";
+noBtn.onclick = yesClicked;
+}
+}
+
+function fakeNo(e) {
+e.preventDefault();
+}
+
+/* EVENTS — DESKTOP + MOBILE */
+noBtn.addEventListener("mouseover", moveNoButton);
+noBtn.addEventListener("mouseenter", moveNoButton);
+noBtn.addEventListener("touchstart", (e) => {
+e.preventDefault();
+moveNoButton();
+});
+noBtn.addEventListener("click", fakeNo);
+
+yesBtn.addEventListener("click", yesClicked);
+
+/* YES CLICK */
+function yesClicked() {
+document.body.style.background = "black";
+content.style.display = "none";
+canvas.style.display = "block";
+startFireworks();
+showFinalScene();
+}
+
+/* FIREWORKS */
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let particles = [];
+
+function startFireworks() {
+if (fireworksStarted) return;
+fireworksStarted = true;
+
+setInterval(() => {
+for (let i = 0; i < 60; i++) {
+particles.push({
+x: Math.random() * canvas.width,
+y: Math.random() * canvas.height,
+vx: (Math.random() - 0.5) * 6,
+vy: (Math.random() - 0.5) * 6,
+life: 100,
+color: `hsl(${Math.random() * 360},100%,60%)`
+});
+}
+}, 600);
+
+animate();
+}
+
+function animate() {
+ctx.fillStyle = "rgba(0,0,0,0.2)";
+ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+particles.forEach((p, i) => {
+p.x += p.vx;
+p.y += p.vy;
+p.life--;
+
+ctx.beginPath();
+ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+ctx.fillStyle = p.color;
+ctx.fill();
+
+if (p.life <= 0) particles.splice(i, 1);
+});
+
+requestAnimationFrame(animate);
+}
+
+/* PHOTO SEQUENCE — SAFE FILENAMES */
+const photos = [
+"./photo1.jpg",
+"./photo2.jpg",
+"./photo3.jpg",
+"./photo4.jpg"
+];
+
+function showFinalScene() {
+finalScene.style.display = "block";
+let index = 0;
+
+setTimeout(showNext, 1500);
+
+function showNext() {
+if (index >= photos.length) return;
+
+photoEl.style.opacity = "0";
+
+setTimeout(() => {
+photoEl.src = photos[index];
+photoEl.style.opacity = "1";
+index++;
+}, 800);
+
+setTimeout(showNext, 2600);
+}
+}
+</script>
+
+</body>
+</html>
